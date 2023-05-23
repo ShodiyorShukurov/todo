@@ -4,9 +4,12 @@ import PropTypes from "prop-types";
 const Context = React.createContext(null);
 
 const Provider = ({ children }) => {
-
-    const [controlled, setControlled] = React.useState([])
-  return <Context.Provider value={{controlled, setControlled}}>{children}</Context.Provider>;
+  const [filter, setFilter] = React.useState("All");
+  return (
+    <Context.Provider value={{ filter, setFilter }}>
+      {children}
+    </Context.Provider>
+  );
 };
 
 Provider.propTypes = {

@@ -3,22 +3,24 @@ import { Button, Modal, ModalBody, ModalFooter } from "reactstrap";
 import PropTypes from "prop-types";
 import { Context as FormContext } from "../../context/Form";
 import { Context as EditContext } from "../../context/Edit";
-// import { Context as ControlledContext } from "../../context/Controlled";
+import { Context as ModalContext } from "../../context/Modal";
 import { MdModeEditOutline } from "react-icons/md";
 import { RiDeleteBin6Line } from "react-icons/ri";
 
 const List = ({ todos }) => {
-  // const { controlled, setControlled } = React.useContext(ControlledContext);
-
+  const { setSelectedIndex, selectedIndex } = React.useContext(EditContext);
   const { setTodos } = React.useContext(FormContext);
-  const [modal, setModal] = React.useState(false);
+  const { modal, setModal } = React.useContext(ModalContext);
 
   const checkRef = React.useRef();
 
-  const toggle = () => {
+  
+  const toggle = (index) => {
+    setSelectedIndex(index);
     setModal(!modal);
   };
 
+  //COMPLETED FUNCTION
   const toggleComplete = (id) => {
     const checkedTodos = todos.map((todo) => {
       if (todo.id === id) {
@@ -29,8 +31,7 @@ const List = ({ todos }) => {
     setTodos([...checkedTodos]);
   };
 
-  const { setSelectedIndex, selectedIndex } = React.useContext(EditContext);
-
+  // DELETE FUNCTION
   const handleDelete = (id) => {
     const filteredTodos = todos.filter((todo) => todo.id !== id);
     setTodos([...filteredTodos]);
@@ -38,6 +39,7 @@ const List = ({ todos }) => {
     console.log(selectedIndex);
   };
 
+  //EDIT FUNCTION
   const handleEdit = (index) => {
     setSelectedIndex(index);
   };
@@ -67,9 +69,9 @@ const List = ({ todos }) => {
                     onChange={() => toggleComplete(todo.id)}
                     checked={todo.completed}
                   />
-                  <strong className={
-                    todo.completed ? "line" : " "
-                  }>{todo.text}</strong>
+                  <strong className={todo.completed ? "line" : " "}>
+                    {todo.text}
+                  </strong>
                 </td>
                 <td>
                   <button
@@ -80,7 +82,7 @@ const List = ({ todos }) => {
                   </button>
                   <button
                     className="btn btn-danger"
-                    onClick={() => handleDelete(todo.id)}
+                    onClick={() => toggle(index)}
                   >
                     <RiDeleteBin6Line />
                   </button>
@@ -93,7 +95,10 @@ const List = ({ todos }) => {
       <Modal isOpen={modal} toggle={toggle}>
         <ModalBody>Haqiqatdan ham o'chirmoqchimisiz?</ModalBody>
         <ModalFooter>
-          <Button color="danger" onClick={handleDelete}>
+          <Button
+            color="danger"
+            onClick={() => handleDelete(todos[selectedIndex]?.id)}
+          >
             Ha
           </Button>{" "}
           <Button color="secondary" onClick={toggle}>

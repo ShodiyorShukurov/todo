@@ -1,11 +1,12 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
 import { Context as FormContext } from "../../context/Form";
+import { Context as FilterContext } from "../../context/Filter";
 import { Context as EditContext } from "../../context/Edit";
 import List from "../List";
 
 const TodoApp = () => {
   const { todos, setTodos } = React.useContext(FormContext);
+  const { filter, setFilter } = React.useContext(FilterContext);
   const { selectedIndex, setSelectedIndex } = React.useContext(EditContext);
 
   const todoRef = React.useRef();
@@ -13,33 +14,36 @@ const TodoApp = () => {
   const handleSubmit = (evt) => {
     evt.preventDefault();
 
-    const newTodos = {
+    const newTodo = {
       id: new Date().getTime(),
       text: todoRef.current.value.trim(),
       completed: false,
     };
 
     if (selectedIndex !== null) {
-      todos[selectedIndex] = newTodos;
+      todos[selectedIndex] = newTodo;
       setSelectedIndex(null);
     } else {
-      setTodos([...todos, newTodos]);
+      setTodos([...todos, newTodo]);
     }
 
     todoRef.current.value = "";
   };
 
-  const handleComplited = () => {
-    const completedTodos = todos.filter((todo) => todo.completed);
-
-    setTodos([...completedTodos]);
+  const handleCompleted = () => {
+    setFilter("Completed");
   };
 
-  const handleUncomplited = () => {
-    const unComplited = todos.filter((todo) => !todo.completed);
-    localStorage.setItem("unComplited", unComplited);
-    setTodos([...unComplited]);
+  const handleUncompleted = () => {
+    setFilter("Incomplete");
   };
+
+  const filteredTodos =
+    filter === "All"
+      ? todos
+      : todos.filter((todo) =>
+          filter === "Completed" ? todo.completed : !todo.completed
+        );
 
   return (
     <>
@@ -51,7 +55,7 @@ const TodoApp = () => {
                 <h1 className="text-center">Todo App</h1>
               </div>
               <div className="card-body">
-                <form className="d-flex" onSubmit={(evt) => handleSubmit(evt)}>
+                <form className="d-flex" onSubmit={handleSubmit}>
                   <input
                     className="form-control me-2"
                     type="text"
@@ -65,25 +69,28 @@ const TodoApp = () => {
                   </button>
                 </form>
                 <div className="mt-3 d-flex justify-content-center">
-                  <button className="btn btn-primary">All</button>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => setFilter("All")}
+                  >
+                    All
+                  </button>
                   <button
                     className="btn btn-primary mx-3"
-                    type="button"
-                    onClick={() => handleComplited(todos, "completed")}
+                    onClick={handleCompleted}
                   >
                     Completed
                   </button>
                   <button
                     className="btn btn-primary"
-                    type="button"
-                    onClick={() => handleUncomplited(todos, "uncomplited")}
+                    onClick={handleUncompleted}
                   >
-                    Uncomplited
+                    Incomplete
                   </button>
                 </div>
               </div>
             </div>
-            {<List todos={todos} />}
+            {<List todos={filteredTodos} />}
           </div>
         </div>
       </div>
